@@ -1,0 +1,35 @@
+{
+  "manifest_version": 2,
+
+  "name": "Getting started example",
+  "description": "This extension shows a Google Image search result for the current page",
+  "version": "1.0",
+
+  "background": {
+    "page": "background.html",
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "css": [
+        "./bower_components/bootstrap/dist/css/bootstrap.min.css"
+      ],
+      "js": [
+        "./bower_components/jquery/dist/jquery.min.js",
+        "./bower_components/bootstrap/dist/js/bootstrap.min.js",
+        "./bower_components/bootbox/bootbox.js",
+        "contentScript.js"
+      ]
+    }
+  ],
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "background"
+  ]
+}
