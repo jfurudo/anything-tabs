@@ -1,0 +1,14 @@
+.anything-text-container h6 {
+    margin: 1px;
+}
+img.anything-col-favicon {
+    height: 32px;
+    width: 32px;
+}
+.anything-col {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+.anything-col:hover {
+    background-color: #ddd;
+}

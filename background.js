@@ -12,8 +12,12 @@ chrome.tabs.getAllInWindow(function (tabsInWindow) {
 console.log("hello");
 
 chrome.runtime.onMessage.addListener(
-  function (message, sender, sendResponse) {    
-    sendResponse(strModalHtml);
+  function (message, sender, sendResponse) {
+    if (message === "anything.tabs.getDialog") {
+      sendResponse(strModalHtml);
+    } else if (message === "anything.tabs.getPageList") {
+      sendResponse(tabs);
+    }
   });
 
 $("document").ready(function () {
