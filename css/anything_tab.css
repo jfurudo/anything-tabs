@@ -1,14 +1,17 @@
 .anything-text-container h6 {
     margin: 1px;
 }
-img.anything-col-favicon {
+img.anything-row-favicon {
     height: 32px;
     width: 32px;
 }
-.anything-col {
+.anything-row {
     padding-top: 2px;
     padding-bottom: 2px;
 }
-.anything-col:hover {
+.anything-row:hover {
+    background-color: #ddd;
+}
+.anything-row.active {
     background-color: #ddd;
 }
