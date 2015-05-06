@@ -24,6 +24,6 @@ chrome.runtime.onMessage.addListener(
 
 $("document").ready(function () {
   backgroundPage = chrome.extension.getBackgroundPage();
-  strModalHtml = backgroundPage.document.getElementById("myModal").outerHTML;
+  strModalHtml = backgroundPage.document.getElementById("anything-dialog").outerHTML;
 });
 

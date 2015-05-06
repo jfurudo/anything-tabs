@@ -29,8 +29,17 @@
           } else if (e.ctrlKey && e.keyCode === 78) {
             // Ctrl + n
             selectNextSource();
-          } else if (e.ctrlKey && e.keyCode === 88) {
+          } else if (e.ctrlKey && e.keyCode === 80) {
             // Ctrl + p
+            selectPreviousSource();
+          } else if (e.keyCode === 9 && e.shiftKey) {
+            // Tab key (no babble)
+            selectPreviousSource();
+            return false;
+          } else if (e.keyCode === 9) {
+            // Shift + Tab key (no babble)
+            selectNextSource();
+            return false;
           }
         });
       $anythingDialog.on("hidden.bs.modal", function () {
@@ -56,9 +65,26 @@
     });
   };
 
-  var selectNextSource = function () {};
+  // 適当すぎ
+  var selectNextSource = function () {
+    var index = 0;
+    $(".anything-shown").each(function (i) {
+      if ($(this).hasClass("active")) {
+        index = i;
+      }
+    });
+    setActive(index + 1);
+  };
 
-  var selectPreviousSource = function () {};
+  var selectPreviousSource = function () {
+    var index = 0;
+    $(".anything-shown").each(function (i) {
+      if ($(this).hasClass("active")) {
+        index = i;
+      }
+    });
+    setActive(index - 1);
+  };
   
   var setActive = function (index) {
     $(".anything-row.active").removeClass("active");
@@ -100,17 +126,21 @@
   document.onkeydown = function(e){
     if (e.keyCode === 66 && e.metaKey) {
       // Meta + b
-      $anythingDialog.modal("toggle")
-      var params = {
-        namespace: namespace,
-        action: "getSourceList"
-      };
-      chrome.runtime.sendMessage(params, function (data) {
-        _.each(data, function (source) {
-          $("#anything-source-list").append(generateRow(source));
+      if (!$("#anything-dialog").hasClass("in")) {
+        var params = {
+          namespace: namespace,
+          action: "getSourceList"
+        };
+        chrome.runtime.sendMessage(params, function (data) {
+          _.each(data, function (source) {
+            $("#anything-source-list").append(generateRow(source));
+          });
+          setActive(0);
         });
-      });
+      }
+      
+      $anythingDialog.modal("toggle")
     }
   };
 
-})();
+}());
