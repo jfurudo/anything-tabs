@@ -131,9 +131,13 @@
           namespace: namespace,
           action: "getSourceList"
         };
-        chrome.runtime.sendMessage(params, function (data) {
-          _.each(data, function (source) {
-            $("#anything-source-list").append(generateRow(source));
+        chrome.runtime.sendMessage(params, function (sourceList) {
+          _.each(sourceList, function (sourceType) {
+            $("#anything-source-list").append($("<h5>" + sourceType.type +  "</h5>"));
+            console.log(sourceType);
+            _.each(sourceType.list, function (source) {
+              $("#anything-source-list").append(generateRow(source));
+            });
           });
           setActive(0);
         });
