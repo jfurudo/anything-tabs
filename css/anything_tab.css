@@ -8,10 +8,14 @@ img.anything-row-favicon {
 .anything-row {
     padding-top: 2px;
     padding-bottom: 2px;
+    display: none;
 }
 .anything-row:hover {
     background-color: #ddd;
 }
 .anything-row.active {
     background-color: #ddd;
+}
+.anything-row.anything-shown {
+    display: block;
 }

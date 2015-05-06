@@ -12,11 +12,13 @@ chrome.tabs.getAllInWindow(function (tabsInWindow) {
 console.log("hello");
 
 chrome.runtime.onMessage.addListener(
-  function (message, sender, sendResponse) {
-    if (message === "anything.tabs.getDialog") {
+  function (params, sender, sendResponse) {
+    if (params.action === "getDialog") {
       sendResponse(strModalHtml);
-    } else if (message === "anything.tabs.getPageList") {
+    } else if (params.action === "getSourceList") {
       sendResponse(tabs);
+    } else if (params.action === "setActive") {
+      chrome.tabs.update(params.args, {selected: true});
     }
   });
 
