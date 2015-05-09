@@ -43,7 +43,7 @@
           }
         });
       $anythingDialog.on("hidden.bs.modal", function () {
-        $(".anything-row").remove();
+        $('anything-source-list').children().remove();
       });
       $anythingDialog.on("shown.bs.modal", function () {
         $("#pattern").focus();
@@ -133,7 +133,7 @@
         };
         chrome.runtime.sendMessage(params, function (sourceList) {
           _.each(sourceList, function (sourceType) {
-            $("#anything-source-list").append($("<h5>" + sourceType.type +  "</h5>"));
+            $("#anything-source-list").append($("<h5 class='source-header-row'>" + sourceType.type +  "</h5>"));
             console.log(sourceType);
             _.each(sourceType.list, function (source) {
               $("#anything-source-list").append(generateRow(source));
