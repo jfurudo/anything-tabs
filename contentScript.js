@@ -1,4 +1,7 @@
+/*global chrome: true, Backbone: true*/
+
 // debugger;
+
 (function () {
   var namespace = "anything.tabs",
       $anythingDialog = null,
@@ -19,7 +22,7 @@
             var filterText = $(this).val();
             previousText = filterText;
             filterRow(filterText);
-            setActive(0);
+            focusRow(0);
           }
         })
         .keydown(function (e) {
@@ -53,16 +56,24 @@
 
   initializeDialog();
 
+  // Be active the selected tab.
   var setActiveTab = function () {
     var targetId = $(".anything-row.active .anything-row-tab-id").val();
-    var params = {
-      namespace: namespace,
-      action: "setActive",
-      args: Number(targetId)
-    };
-    chrome.runtime.sendMessage(params, function (targetId) {
-      console.log("target id:". targetId);
-    });
+    if (targetIf !== null) {
+      var params = {
+        namespace: namespace,
+        action: "setActive",
+        args: Number(targetId)
+      };
+      chrome.runtime.sendMessage(params, function (targetId) {
+        console.log("target id:". targetId);
+      });
+    } else {
+      // tab 以外のソースであれば
+      chrome.runtime.sendMessage(params, function (targetId) {
+        console.log("success!");
+      });
+    }
   };
 
   // 適当すぎ
@@ -73,7 +84,7 @@
         index = i;
       }
     });
-    setActive(index + 1);
+    focusRow(index + 1);
   };
 
   var selectPreviousSource = function () {
@@ -83,10 +94,10 @@
         index = i;
       }
     });
-    setActive(index - 1);
+    focusRow(index - 1);
   };
   
-  var setActive = function (index) {
+  var focusRow = function (index) {
     $(".anything-row.active").removeClass("active");
     $(".anything-row.anything-shown:eq(" + index + ")").addClass("active");
   };
@@ -132,14 +143,14 @@
           action: "getSourceList"
         };
         chrome.runtime.sendMessage(params, function (sourceList) {
-          _.each(sourceList, function (sourceType) {
-            $("#anything-source-list").append($("<h5 class='source-header-row'>" + sourceType.type +  "</h5>"));
-            console.log(sourceType);
-            _.each(sourceType.list, function (source) {
+          _.each(sourceList, function (sourceSubList) {
+            $("#anything-source-list").append($("<h5 class='source-header-row'>" + sourceSubList.type +  "</h5>"));
+            console.log(sourceSubList);
+            _.each(sourceSubList.list, function (source) {
               $("#anything-source-list").append(generateRow(source));
             });
           });
-          setActive(0);
+          focusRow(0);
         });
       }
       
