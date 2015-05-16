@@ -2,7 +2,7 @@
 
 // var chromeFavIconUl = "chrome://theme/IDR_EXTENSIONS_FAVICON@2x"
 
-var sourceList = new Anything.Collection.SourceList(),
+var sourceList,
     sourceSet,
     sourceSetList,
     sourceSetListView,
@@ -15,7 +15,7 @@ var sourceList = new Anything.Collection.SourceList(),
     regexpFavIconUrl = new RegExp(/^[httpsfilechrome]+:\/{2,3}([0-9a-zA-Z\.\-:]+?):?[0-9]*?\//i);
 
 var getFavIconUrl = function (url) {
-  var domain = url.match(Regexpfaviconurl);
+  var domain = url.match(regexpFavIconUrl);
   var favIconApiUrl = "http://www.google.com/s2/favicons?domain=";
   return domain ? favIconApiUrl + domain[1] : "";
 };
@@ -33,6 +33,7 @@ var initializeSouceList = function () {
   });
   bookmarks = new Anything.Collection.SourceList();
   sourceList = new Anything.Collection.SourceList();
+  tabs = new Anything.Collection.SourceList();
   
   // bookmark の取得
   // TODO: サブディレクトリを網羅できない．再帰を使う．
@@ -63,18 +64,19 @@ var initializeSouceList = function () {
 
   // 現在開いているタブを取得
   chrome.tabs.getAllInWindow(function (tabsInWindow) {
-    _.each(tabsInWindow, function (tab) {
-      sourceList.add(new Anything.Model.Source({
+    _.each(tabsInWindow, function (tab, index) {
+      tabs.add(new Anything.Model.Source({
         type: "tab",
         tabId: tab.id,
         title: tab.title,
         url: tab.url,
-        favIconUrl: tab.favIconUrl
+        favIconUrl: tab.favIconUrl,
+        priority: index
       }));
     });
     sourceSetList.add(new Anything.Model.SourceSet({
       sourceType: "Tabs",
-      sourceList: sourceList
+      sourceList: tabs
     }));
   });
 
@@ -84,7 +86,7 @@ var initializeSouceList = function () {
   });
 
   chrome.tabs.onCreated.addListener(function (tab) {
-    sourceList.add(new Anything.Model.Source({
+    tabs.add(new Anything.Model.Source({
       type: "tab",
       tabId: tab.id,
       title: tab.title,
@@ -93,8 +95,16 @@ var initializeSouceList = function () {
     }))
   });
 
+  chrome.tabs.onActivated.addListener(function (activeInfo) {
+    console.log("active info:", activeInfo);
+    var tab = tabs.findWhere({
+      tabId: activeInfo.tabId
+    });
+    console.log("[in onActivated] tab:", tab.toJSON());
+  });
+
   chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    var source = sourceList.findWhere({
+    var tab = tabs.findWhere({
       tabId: tabId
     });
     source.set({
@@ -102,8 +112,7 @@ var initializeSouceList = function () {
       url: tab.url,
       favIconUrl: tab.favIconUrl
     });
-    console.log("tab", tab);
-    console.log("source", source.toJSON());
+    console.log("[in onActivated] tab:", tab.toJSON());
   });
   
   chrome.runtime.onMessage.addListener(function (params,
