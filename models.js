@@ -58,12 +58,12 @@ Anything.View = {
       this.collection.on('add', this.addOne, this);
     },
     addOne: function (source) {
-      var sourceView = new SourceView({model: source});
+      var sourceView = new Anything.View.SourceView({model: source});
       this.$el.append(sourceView.render().el);
     },
     render: function () {
       this.collection.each(function (source) {
-        var sourceView = new SourceView({model: source});
+        var sourceView = new Anything.View.SourceView({model: source});
         this.$el.append(sourceView.render().el);
       }, this);
 
@@ -76,7 +76,7 @@ Anything.View = {
     render: function () {
       var template = this.template(this.model.toJSON());
       this.$el.html(template)
-      var sourceListView = new SourceListView({
+      var sourceListView = new Anything.View.SourceListView({
         collection: this.model.get("sourceList")
       })
       this.$el.append((sourceListView.render().el));
@@ -90,7 +90,7 @@ Anything.View = {
     render: function () {
       this.$el.empty();
       this.collection.each(function (sourceSet) {
-        var sourceSetView = new SourceSetView({model: sourceSet});
+        var sourceSetView = new Anything.View.SourceSetView({model: sourceSet});
         this.$el.append(sourceSetView.render().el);
       }, this);
 

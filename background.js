@@ -1,8 +1,8 @@
-/*global chrome: true, Backbone: true, _: true*/
+/*global chrome: true, Backbone: true, _: true, Anything: true*/
 
 // var chromeFavIconUl = "chrome://theme/IDR_EXTENSIONS_FAVICON@2x"
 
-var sourceList,
+var sourceList = new Anything.Collection.SourceList(),
     sourceSet,
     sourceSetList,
     sourceSetListView,
@@ -15,106 +15,10 @@ var sourceList,
     regexpFavIconUrl = new RegExp(/^[httpsfilechrome]+:\/{2,3}([0-9a-zA-Z\.\-:]+?):?[0-9]*?\//i);
 
 var getFavIconUrl = function (url) {
-  var domain = url.match(regexpFavIconUrl);
+  var domain = url.match(Regexpfaviconurl);
   var favIconApiUrl = "http://www.google.com/s2/favicons?domain=";
   return domain ? favIconApiUrl + domain[1] : "";
 };
-
-var Source = Backbone.Model.extend({
-  initialize: function (attrs, options) {
-  },
-  validate: function (attrs) {
-    if (!attrs.url) {
-      return "url is require.";
-    }
-    if (!attrs.title) {
-      return "title is require.";
-    }
-  }
-});
-
-var SourceView = Backbone.View.extend({
-  tagName: "div",
-  className: "row list-group-item anything-row anything-shown",
-  template: _.template($("#anything-row-template").html()),
-  initialize: function () {
-    this.model.bind('destroy', this.remove, this);
-    this.model.bind('change', this.render, this);
-  },
-  destory: function () {
-    this.model.destory();
-  },
-  remove: function () {
-    this.$el.remove();
-  },
-  render: function () {
-    var template = this.template(this.model.toJSON());
-    this.$el.html(template)
-
-    return this;
-  }
-});
-
-var SourceList = Backbone.Collection.extend({
-  model: Source
-});
-
-var SourceSet = Backbone.Model.extend({
-  initialize: function () {}
-});
-
-var SourceListView = Backbone.View.extend({
-  tagName: 'div',
-  className: "list-group",
-  initialize: function () {
-    this.collection.on('add', this.addOne, this);
-  },
-  addOne: function (source) {
-      var sourceView = new SourceView({model: source});
-      this.$el.append(sourceView.render().el);
-  },
-  render: function () {
-    this.collection.each(function (source) {
-      var sourceView = new SourceView({model: source});
-      this.$el.append(sourceView.render().el);
-    }, this);
-
-    return this;
-  }
-});
-
-var SourceSetView = Backbone.View.extend({
-  tagName: "div",
-  template: _.template($("#anything-source-set-template").html()),
-  render: function () {
-    var template = this.template(this.model.toJSON());
-    this.$el.html(template)
-    var sourceListView = new SourceListView({
-      collection: this.model.get("sourceList")
-    })
-    this.$el.append((sourceListView.render().el));
-
-    return this;
-  }
-});
-
-var SourceSetList = Backbone.Collection.extend({
-  model: sourceSet
-});
-
-var SourceSetListView = Backbone.View.extend({
-  tagName: "div",
-  className: "anything-source-set-list",
-  render: function () {
-    this.$el.empty();
-    this.collection.each(function (sourceSet) {
-      var sourceSetView = new SourceSetView({model: sourceSet});
-      this.$el.append(sourceSetView.render().el);
-    }, this);
-
-    return this;
-  }
-});
 
 var getModalHtml = function () {
   var backgroundPage = chrome.extension.getBackgroundPage();
@@ -123,25 +27,24 @@ var getModalHtml = function () {
 
 var initializeSouceList = function () {
 
-  sourceSetList = new SourceSetList();
-  sourceSetListView = new SourceSetListView({
+  sourceSetList = new Anything.Collection.SourceSetList();
+  sourceSetListView = new Anything.View.SourceSetListView({
     collection: sourceSetList
   });
-  bookmarks = new SourceList();
-  sourceList = new SourceList();
+  bookmarks = new Anything.Collection.SourceList();
+  sourceList = new Anything.Collection.SourceList();
   
   // bookmark の取得
   // TODO: サブディレクトリを網羅できない．再帰を使う．
   chrome.bookmarks.getChildren("0", function (root) {
     // The `root` is root of bookmark tree. It has each directory
     var length = root.length;
-    var bookmarks = new SourceList();
     for (var i = 1; i <= length; i++) {
       chrome.bookmarks.getChildren(String(i), function (children) {
         if (children) {
           _.each(children, function (node) {
             var favIconUrl = node.url.match(regexpFavIconUrl);
-            bookmarks.add(new Source({
+            bookmarks.add(new Anything.Model.Source({
               type: "bookmark",
               title: node.title,
               url: node.url,
@@ -152,7 +55,7 @@ var initializeSouceList = function () {
         }
       });
     }
-    sourceSetList.add(new SourceSet({
+    sourceSetList.add(new Anything.Model.SourceSet({
       sourceType: "Bookmarks",
       sourceList: bookmarks
     }));
@@ -161,7 +64,7 @@ var initializeSouceList = function () {
   // 現在開いているタブを取得
   chrome.tabs.getAllInWindow(function (tabsInWindow) {
     _.each(tabsInWindow, function (tab) {
-      sourceList.add(new Source({
+      sourceList.add(new Anything.Model.Source({
         type: "tab",
         tabId: tab.id,
         title: tab.title,
@@ -169,13 +72,10 @@ var initializeSouceList = function () {
         favIconUrl: tab.favIconUrl
       }));
     });
-    sourceSetList.add(new SourceSet({
+    sourceSetList.add(new Anything.Model.SourceSet({
       sourceType: "Tabs",
       sourceList: sourceList
     }));
-    sourceSetView = new SourceSetView({
-      model: sourceSet
-    });
   });
 
   // タブの変更をソースリストに反映
@@ -184,7 +84,7 @@ var initializeSouceList = function () {
   });
 
   chrome.tabs.onCreated.addListener(function (tab) {
-    sourceList.add(new Source({
+    sourceList.add(new Anything.Model.Source({
       type: "tab",
       tabId: tab.id,
       title: tab.title,
