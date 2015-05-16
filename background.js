@@ -73,7 +73,6 @@ var SourceSetView = Backbone.View.extend({
   render: function () {
     var template = this.template(this.model.toJSON());
     this.$el.html(template)
-    console.log(this.model);
     var sourceListView = new SourceListView({
       collection: this.model.get("sourceList")
     })
@@ -95,7 +94,6 @@ var SourceListView = Backbone.View.extend({
       this.$el.append(sourceView.render().el);
   },
   render: function () {
-    console.log(this.$el.children());
     this.collection.each(function (source) {
       var sourceView = new SourceView({model: source});
       this.$el.append(sourceView.render().el);
@@ -124,10 +122,14 @@ var SourceSetListView = Backbone.View.extend({
 });
 
 $("document").ready(function () {
-  backgroundPage = chrome.extension.getBackgroundPage();
-  strModalHtml = backgroundPage.document.getElementById("anything-dialog").outerHTML;
+  strModalHtml = getModalHtml();
   initializeSouceList();
 });
+
+var getModalHtml = function () {
+  var backgroundPage = chrome.extension.getBackgroundPage();
+  return backgroundPage.document.getElementById("anything-dialog").outerHTML;
+}
 
 var initializeSouceList = function () {
 
@@ -245,6 +247,8 @@ var initializeSouceList = function () {
           sendResponse(sourceList);
         } else if (params.action === "setActive") {
           chrome.tabs.update(params.args, {selected: true});
+        } else if (params.action == "getSource") {
+          sendResponse(sourceSetListView.render().el.outerHTML);
         }
       } else if (params.namespace === "anything.tabs.test") {
         if (params.action === "getSourceList") {

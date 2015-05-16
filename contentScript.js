@@ -46,7 +46,7 @@
           }
         });
       $anythingDialog.on("hidden.bs.modal", function () {
-        $('anything-source-list').children().remove();
+        $('#anything-source-list').children().remove();
       });
       $anythingDialog.on("shown.bs.modal", function () {
         $("#pattern").focus();
@@ -59,7 +59,7 @@
   // Be active the selected tab.
   var setActiveTab = function () {
     var targetId = $(".anything-row.active .anything-row-tab-id").val();
-    if (targetIf !== null) {
+    if (targetId !== null) {
       var params = {
         namespace: namespace,
         action: "setActive",
@@ -136,25 +136,35 @@
 
   document.onkeydown = function(e){
     if (e.keyCode === 66 && e.metaKey) {
-      // Meta + b
-      if (!$("#anything-dialog").hasClass("in")) {
-        var params = {
+      // // Meta + b
+      // if (!$("#anything-dialog").hasClass("in")) {
+      //   var params = {
+      //     namespace: namespace,
+      //     action: "getSourceList"
+      //   };
+      //   chrome.runtime.sendMessage(params, function (sourceList) {
+      //     _.each(sourceList, function (sourceSubList) {
+      //       $("#anything-source-list").append($("<h5 class='source-header-row'>" + sourceSubList.type +  "</h5>"));
+      //       console.log(sourceSubList);
+      //       _.each(sourceSubList.list, function (source) {
+      //         $("#anything-source-list").append(generateRow(source));
+      //       });
+      //     });
+      //     focusRow(0);
+      //   });
+      // }
+      
+      // $anythingDialog.modal("toggle")
+
+      var params = {
           namespace: namespace,
-          action: "getSourceList"
+          action: "getSource"
         };
-        chrome.runtime.sendMessage(params, function (sourceList) {
-          _.each(sourceList, function (sourceSubList) {
-            $("#anything-source-list").append($("<h5 class='source-header-row'>" + sourceSubList.type +  "</h5>"));
-            console.log(sourceSubList);
-            _.each(sourceSubList.list, function (source) {
-              $("#anything-source-list").append(generateRow(source));
-            });
-          });
+        chrome.runtime.sendMessage(params, function (modalHtml) {
+          $("#anything-source-list").append($(modalHtml));
+          $anythingDialog.modal("show")
           focusRow(0);
         });
-      }
-      
-      $anythingDialog.modal("toggle")
     }
   };
 
