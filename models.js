@@ -27,13 +27,19 @@ Anything.Collection = {
   SourceSetList: Backbone.Collection.extend({
     model: Anything.Model.SourceSet
   })
-}
+};
 
 Anything.View = {
   SourceView: Backbone.View.extend({
-    tagName: "div",
-    className: "row list-group-item anything-row anything-shown",
+    tagName: "li",
+    className: "anything-row anything-shown",
     template: _.template($("#anything-row-template").html()),
+    events: {
+      click: "clicked"
+    },
+    clicked: function () {
+      console.log(this);
+    },
     initialize: function () {
       this.model.bind('destroy', this.remove, this);
       this.model.bind('change', this.render, this);
@@ -46,14 +52,14 @@ Anything.View = {
     },
     render: function () {
       var template = this.template(this.model.toJSON());
-      this.$el.html(template)
+      this.$el.html(template);
 
       return this;
     }
   }),
   SourceListView: Backbone.View.extend({
-    tagName: 'div',
-    className: "list-group",
+    tagName: 'ul',
+    className: "",
     initialize: function () {
       this.collection.on('add', this.addOne, this);
     },
@@ -75,10 +81,10 @@ Anything.View = {
     template: _.template($("#anything-source-set-template").html()),
     render: function () {
       var template = this.template(this.model.toJSON());
-      this.$el.html(template)
+      this.$el.html(template);
       var sourceListView = new Anything.View.SourceListView({
         collection: this.model.get("sourceList")
-      })
+      });
       this.$el.append((sourceListView.render().el));
 
       return this;

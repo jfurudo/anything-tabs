@@ -13,7 +13,7 @@
       action: "getDialog"
     };
     chrome.runtime.sendMessage(params, function (data) {
-      $anythingDialog = $(data)
+      $anythingDialog = $(data);
       console.log("return value: ", $anythingDialog);
       $("body").append($anythingDialog);
       $("#pattern")
@@ -45,10 +45,10 @@
             return false;
           }
         });
-      $anythingDialog.on("hidden.bs.modal", function () {
+      $anythingDialog.on("hide", function () {
         $('#anything-source-list').children().remove();
       });
-      $anythingDialog.on("shown.bs.modal", function () {
+      $anythingDialog.on("show", function () {
         $("#pattern").focus();
       });
     });
@@ -136,35 +136,22 @@
 
   document.onkeydown = function(e){
     if (e.keyCode === 66 && e.metaKey) {
-      // // Meta + b
-      // if (!$("#anything-dialog").hasClass("in")) {
-      //   var params = {
-      //     namespace: namespace,
-      //     action: "getSourceList"
-      //   };
-      //   chrome.runtime.sendMessage(params, function (sourceList) {
-      //     _.each(sourceList, function (sourceSubList) {
-      //       $("#anything-source-list").append($("<h5 class='source-header-row'>" + sourceSubList.type +  "</h5>"));
-      //       console.log(sourceSubList);
-      //       _.each(sourceSubList.list, function (source) {
-      //         $("#anything-source-list").append(generateRow(source));
-      //       });
-      //     });
-      //     focusRow(0);
-      //   });
-      // }
-      
-      // $anythingDialog.modal("toggle")
-
-      var params = {
+      // Meta + b
+      if ($anythingDialog.css("display") === "none") {
+        var params = {
           namespace: namespace,
           action: "getSource"
         };
-        chrome.runtime.sendMessage(params, function (modalHtml) {
-          $("#anything-source-list").append($(modalHtml));
-          $anythingDialog.modal("show")
+        chrome.runtime.sendMessage(params, function (modalHtmlStr) {
+          $("#anything-source-list").append($(modalHtmlStr));
+          $anythingDialog.show();
+          $anythingDialog.trigger("show");
           focusRow(0);
         });
+      } else {
+        $anythingDialog.hide();
+        $anythingDialog.trigger("hide");
+      }
     }
   };
 

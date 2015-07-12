@@ -23,7 +23,7 @@ var getFavIconUrl = function (url) {
 var getModalHtml = function () {
   var backgroundPage = chrome.extension.getBackgroundPage();
   return backgroundPage.document.getElementById("anything-dialog").outerHTML;
-}
+};
 
 var initializeSouceList = function () {
 
@@ -52,7 +52,7 @@ var initializeSouceList = function () {
               tabId: null, // id is property for tabId
               favIconUrl: getFavIconUrl(node.url)
             }));
-          })
+          });
         }
       });
     }
@@ -92,22 +92,41 @@ var initializeSouceList = function () {
       title: tab.title,
       url: tab.url,
       favIconUrl: tab.favIconUrl
-    }))
+    }));
   });
 
+  var currentTabId;
   chrome.tabs.onActivated.addListener(function (activeInfo) {
+    if (activeInfo.tabId === currentTabId) {
+      return;
+    }
     console.log("active info:", activeInfo);
-    var tab = tabs.findWhere({
+    var previousTab = tabs.findWhere({
+      tabId: currentTabId
+    });
+    currentTabId = activeInfo.tabId;
+    var currentTab = tabs.findWhere({
       tabId: activeInfo.tabId
     });
-    console.log("[in onActivated] tab:", tab.toJSON());
+    tabs.each(function (tab) {
+      if (tab.get("priority") < currentTab.get("priority")) {
+        console.log("in onActivate:  113: ", tab.get("priority"));
+        tab.set({priority: tab.get("priority") + 1});
+      } else if (tab.get("priority") < previousTab.get("priority")) {
+        tab.set({priority: tab.get("priority") - 1});
+        console.log("in onActivate:  117: ", tab.get("priority"));
+      }
+    });
+    previousTab.set({priority: 0});
+    currentTab.set({priority: tabs.length - 1});
+    tabs.sortBy("priority");
   });
 
   chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     var tab = tabs.findWhere({
       tabId: tabId
     });
-    source.set({
+    tab.set({
       title: tab.title,
       url: tab.url,
       favIconUrl: tab.favIconUrl
@@ -139,7 +158,13 @@ var initializeSouceList = function () {
       }
     }
   });
-}
+
+  // 最初に現在のタブをセット
+  chrome.tabs.getSelected(function (tab) {
+    tabs.findWhere({tabId: tab.id}).set({priority: tabs.length});
+    currentTabId = tab.id;
+  });
+};
 
 $("document").ready(function () {
   strModalHtml = getModalHtml();

@@ -1,3 +1,11 @@
+#anything-dialog {
+  height: 400px;
+  width: 100%;
+  position: fixed;
+  bottom: 0px;
+  display: none;
+}
+
 .anything-text-container h6 {
     margin: 1px;
 }
@@ -9,6 +17,9 @@ img.anything-row-favicon {
     padding-top: 2px;
     padding-bottom: 2px;
     display: none;
+}
+.anything-row div {
+  display: inline-block;
 }
 .anything-row:hover {
     background-color: #ddd;
